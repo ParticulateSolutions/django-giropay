@@ -72,24 +72,32 @@ class NotifyGiropayView(View):
 
 
 class GiropayReturnView(RedirectView):
+    giropay_wrapper = GiropayWrapper()
+
+    def get_error_url(self):
+        return django_giropay_settings.GIROPAY_ERROR_URL
+
+    def get_cancel_url(self, giropay_transaction):
+        return giropay_transaction.error_url
+
+    def get_success_url(self, giropay_transaction):
+        return giropay_transaction.success_url
 
     def get_redirect_url(self, *args, **kwargs):
-        giropay_wrapper = GiropayWrapper()
         get_params = self.request.GET
 
-        if not validate_giropay_get_params(giropay_wrapper, get_params):
-            return django_giropay_settings.GIROPAY_ERROR_URL
+        if not validate_giropay_get_params(self.giropay_wrapper, get_params):
+            return self.get_error_url()
 
         try:
             giropay_transaction = GiropayTransaction.objects.get(reference=get_params['gcReference'])
         except GiropayTransaction.DoesNotExist:
-            return django_giropay_settings.GIROPAY_ERROR_URL
+            return self.get_error_url()
 
         giropay_transaction.result_payment = int(get_params['gcResultPayment'])
         giropay_transaction.backend_tx_id = get_params['gcBackendTxId']
         giropay_transaction.save()
 
         if giropay_transaction.result_payment not in django_giropay_settings.GIROPAY_VALID_TRANSACTION_STATUSES:
-            return django_giropay_settings.GIROPAY_CANCELLATION_URL
-
-        return django_giropay_settings.GIROPAY_SUCCESS_URL
+            return self.get_cancel_url(giropay_transaction)
+        return self.get_success_url(giropay_transaction)
