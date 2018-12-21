@@ -127,7 +127,7 @@ class GiropayWrapper(object):
             logger.error(_("Transaction Start Response code is {} {}.").format(giropay_transaction.latest_response_code, giropay_transaction.latest_response_msg))
         else:
             giropay_transaction.reference = response_dict['reference']
-            giropay_transaction.redirect_banking_url = response_dict['redirect']
+            giropay_transaction.external_payment_url = response_dict['redirect']
             giropay_transaction.save()
         return giropay_transaction
 
