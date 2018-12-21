@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -36,12 +37,15 @@ def validate_giropay_get_params(giropay_wrapper, get_params):
 
 
 class NotifyGiropayView(View):
+    giropay_wrapper = GiropayWrapper()
 
     def get(self, request, *args, **kwargs):
-        giropay_wrapper = GiropayWrapper()
-        get_params = request.GET
+        get_params = OrderedDict()
+        # creating OrderedDict out of query string, because we need it ordered for the hash check
+        for query_param in request.META['QUERY_STRING'].split('&'):
+            get_params[query_param.split('=')[0]] = "=".join(query_param.split('=')[1:])
 
-        if not validate_giropay_get_params(giropay_wrapper, get_params):
+        if not validate_giropay_get_params(self.giropay_wrapper, get_params):
             return HttpResponse(status=400)
 
         try:
@@ -84,7 +88,10 @@ class GiropayReturnView(RedirectView):
         return giropay_transaction.success_url
 
     def get_redirect_url(self, *args, **kwargs):
-        get_params = self.request.GET
+        # creating OrderedDict out of query string, because we need it ordered for the hash check
+        get_params = OrderedDict()
+        for query_param in self.request.META['QUERY_STRING'].split('&'):
+            get_params[query_param.split('=')[0]] = "=".join(query_param.split('=')[1:])
 
         if not validate_giropay_get_params(self.giropay_wrapper, get_params):
             return self.get_error_url()
