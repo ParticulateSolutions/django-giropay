@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+from collections import OrderedDict
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -58,51 +59,50 @@ class GiropayWrapper(object):
         giropay_transaction.success_url = build_giropay_full_uri(success_url)
         giropay_transaction.error_url = build_giropay_full_uri(error_url)
 
-        data = {
-            'merchantId': self.auth['MERCHANT_ID'],
-            'projectId': self.auth['PROJECT_ID'],
-            'merchantTxId': merchant_tx_id,
-            'amount': amount,
-            'currency': currency,
-            'purpose': purpose,
-            'urlRedirect': giropay_transaction.redirect_url,
-            'urlNotify': giropay_transaction.notify_url,
-        }
+        data = OrderedDict()
+        data['merchantId'] = self.auth['MERCHANT_ID']
+        data['projectId'] = self.auth['PROJECT_ID']
+        data['merchantTxId'] = merchant_tx_id
+        data['amount'] = amount
+        data['currency'] = currency
+        data['purpose'] = purpose
+        data['urlRedirect'] = giropay_transaction.redirect_url
+        data['urlNotify'] = giropay_transaction.notify_url
         if bic:
-            data.update({'bic': bic})
+            data['bic'] = bic
             giropay_transaction.bic = bic
         if iban:
-            data.update({'iban': iban})
+            data['iban'] = iban
             giropay_transaction.iban = iban
         if info_1_label:
-            data.update({'info1Label': info_1_label})
+            data['info1Label'] = info_1_label
             giropay_transaction.info_1_label = info_1_label
         if info_1_text:
-            data.update({'info1Text': info_1_text})
+            data['info1Text'] = info_1_text
             giropay_transaction.info_1_text = info_1_text
         if info_2_label:
-            data.update({'info2Label': info_2_label})
+            data['info2Label'] = info_2_label
             giropay_transaction.info_2_label = info_2_label
         if info_2_text:
-            data.update({'info2Text': info_2_text})
+            data['info2Text'] = info_2_text
             giropay_transaction.info_2_text = info_2_text
         if info_3_label:
-            data.update({'info3Label': info_3_label})
+            data['info3Label'] = info_3_label
             giropay_transaction.info_3_label = info_3_label
         if info_3_text:
-            data.update({'info3Text': info_3_text})
+            data['info3Text'] = info_3_text
             giropay_transaction.info_3_text = info_3_text
         if info_4_label:
-            data.update({'info4Label': info_4_label})
+            data['info4Label'] = info_4_label
             giropay_transaction.info_4_label = info_4_label
         if info_4_text:
-            data.update({'info4Text': info_4_text})
+            data['info4Text'] = info_4_text
             giropay_transaction.info_4_text = info_4_text
         if info_5_label:
-            data.update({'info5Label': info_5_label})
+            data['info5Label'] = info_5_label
             giropay_transaction.info_5_label = info_5_label
         if info_5_text:
-            data.update({'info5Text': info_5_text})
+            data['info5Text'] = info_5_text
             giropay_transaction.info_5_text = info_5_text
 
         giropay_transaction.save()
