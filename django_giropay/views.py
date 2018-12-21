@@ -26,8 +26,14 @@ def validate_giropay_get_params(giropay_wrapper, get_params):
         return False
 
     # calculate hash and compare
-    notification = {key: value for key, value in get_params.items() if key.startswith('gc')}
-    notification_hash = notification.pop('gcHash')
+    notification = OrderedDict()
+    notification_hash = ""
+    for key, value in get_params.items():
+        if key == 'gcHash':
+            notification_hash = value
+        else:
+            if key.startswith('gc'):
+                notification[key] = value
     generated_hash = giropay_wrapper._generate_hash_from_dict(notification)
 
     if generated_hash != notification_hash:
