@@ -37,6 +37,9 @@ def validate_giropay_get_params(giropay_wrapper, get_params):
     generated_hash = giropay_wrapper._generate_hash_from_dict(notification)
 
     if generated_hash != notification_hash:
+        logger.error(
+            _("Generated hash does not match received hash. Generated hash: {} \nReceived hash: {}").format(generated_hash, notification_hash)
+        )
         return False
 
     return True
@@ -105,6 +108,9 @@ class GiropayReturnView(RedirectView):
         try:
             giropay_transaction = GiropayTransaction.objects.get(reference=get_params['gcReference'])
         except GiropayTransaction.DoesNotExist:
+            logger.error(
+                _("GiropayTransaction with reference {} does not exist.").format(get_params['gcReference'])
+            )
             return self.get_error_url()
 
         giropay_transaction.result_payment = int(get_params['gcResultPayment'])
