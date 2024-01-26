@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from django_giropay import settings as django_giropay_settings
+from django_giropay.constants import SHOPPING_CART_TYPE
 from django_giropay.models import GiropayTransaction
 
 import requests
@@ -39,9 +40,8 @@ class GiropayWrapper(object):
                 }
 
     def start_transaction(self, merchant_tx_id, amount, purpose,
-        currency='EUR', bic=False, iban=False, info_1_label=False, info_1_text=False, info_2_label=False,
-        info_2_text=False, info_3_label=False, info_3_text=False, info_4_label=False, info_4_text=False,
-        info_5_label=False, info_5_text=False,
+        currency='EUR', shoppingCartType=SHOPPING_CART_TYPE.ANONYMOUS_DONATION, shipping_address=None,
+        merchantOrderReferenceNumber=False, kassenzeichen=False,
         redirect_url=django_giropay_settings.GIROPAY_RETURN_URL,
         notify_url=django_giropay_settings.GIROPAY_NOTIFICATION_URL,
         success_url=django_giropay_settings.GIROPAY_SUCCESS_URL,
@@ -59,6 +59,7 @@ class GiropayWrapper(object):
         giropay_transaction.success_url = build_giropay_full_uri(success_url)
         giropay_transaction.error_url = build_giropay_full_uri(error_url)
 
+        # Ordering needs to be the same as in the API docs, otherwise the generated hash will be invalid
         data = OrderedDict()
         data['merchantId'] = self.auth['MERCHANT_ID']
         data['projectId'] = self.auth['PROJECT_ID']
@@ -66,44 +67,26 @@ class GiropayWrapper(object):
         data['amount'] = amount
         data['currency'] = currency
         data['purpose'] = purpose
-        data['urlRedirect'] = giropay_transaction.redirect_url
-        data['urlNotify'] = giropay_transaction.notify_url
-        if bic:
-            data['bic'] = bic
-            giropay_transaction.bic = bic
-        if iban:
-            data['iban'] = iban
-            giropay_transaction.iban = iban
-        if info_1_label:
-            data['info1Label'] = info_1_label
-            giropay_transaction.info_1_label = info_1_label
-        if info_1_text:
-            data['info1Text'] = info_1_text
-            giropay_transaction.info_1_text = info_1_text
-        if info_2_label:
-            data['info2Label'] = info_2_label
-            giropay_transaction.info_2_label = info_2_label
-        if info_2_text:
-            data['info2Text'] = info_2_text
-            giropay_transaction.info_2_text = info_2_text
-        if info_3_label:
-            data['info3Label'] = info_3_label
-            giropay_transaction.info_3_label = info_3_label
-        if info_3_text:
-            data['info3Text'] = info_3_text
-            giropay_transaction.info_3_text = info_3_text
-        if info_4_label:
-            data['info4Label'] = info_4_label
-            giropay_transaction.info_4_label = info_4_label
-        if info_4_text:
-            data['info4Text'] = info_4_text
-            giropay_transaction.info_4_text = info_4_text
-        if info_5_label:
-            data['info5Label'] = info_5_label
-            giropay_transaction.info_5_label = info_5_label
-        if info_5_text:
-            data['info5Text'] = info_5_text
-            giropay_transaction.info_5_text = info_5_text
+        data['shoppingCartType'] = shoppingCartType
+        if shipping_address:
+            data['shippingAddresseFirstName'] = shipping_address.get('shippingAddresseFirstName', '')
+            data['shippingAddresseLastName'] = shipping_address.get('shippingAddresseLastName', '')
+            data['shippingCompany'] = shipping_address.get('shippingCompany', '')
+            data['shippingAdditionalAddressInformation'] = shipping_address.get('shippingAdditionalAddressInformation',
+                                                                                '')
+            data['shippingStreet'] = shipping_address.get('shippingStreet', '')
+            data['shippingStreetNumber'] = shipping_address.get('shippingStreetNumber', '')
+            data['shippingZipCode'] = shipping_address.get('shippingZipCode', '')
+            data['shippingCity'] = shipping_address.get('shippingCity', '')
+            data['shippingCountry'] = shipping_address.get('shippingCountry', '')
+            data['shippingEmail'] = shipping_address.get('shippingEmail', '')
+        if merchantOrderReferenceNumber:
+            data['merchantOrderReferenceNumber'] = merchantOrderReferenceNumber
+        data['urlRedirect'] = redirect_url
+        data['urlNotify'] = notify_url
+        if kassenzeichen:
+            data['kassenzeichen'] = kassenzeichen
+
 
         giropay_transaction.save()
 

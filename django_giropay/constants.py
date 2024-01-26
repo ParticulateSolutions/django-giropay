@@ -33,3 +33,10 @@ AGE_VERIFICATION_STATUS = {
     4021: _("4021 Age verification not possible"),
     4022: _("4022 Age verification unsuccessful"),
 }
+
+class SHOPPING_CART_TYPE:
+    PHYSICAL = 'PHYSICAL'
+    DIGITAL = 'DIGITAL'
+    MIXED = 'MIXED'
+    ANONYMOUS_DONATION = 'ANONYMOUS_DONATION'
+    AUTHORITIES_PAYMENT = 'AUTHORITIES_PAYMENT'
