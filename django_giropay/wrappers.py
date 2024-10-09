@@ -1,10 +1,8 @@
-from __future__ import unicode_literals
-
 import logging
 from collections import OrderedDict
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_giropay import settings as django_giropay_settings
 from django_giropay.constants import SHOPPING_CART_TYPE

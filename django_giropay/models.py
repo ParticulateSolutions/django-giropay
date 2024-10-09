@@ -1,14 +1,7 @@
-from __future__ import unicode_literals
-
-import logging
-
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
-
-@python_2_unicode_compatible
 class GiropayTransaction(models.Model):
     created_at = models.DateTimeField(_("created_at"), auto_now_add=True)
 
