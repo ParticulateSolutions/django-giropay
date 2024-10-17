@@ -40,8 +40,7 @@ def get_package_data(package):
     return {package: filepaths}
 
 REQUIREMENTS = [
-    'Django>=1.11',
-    'six>=1.10.0',
+    'Django>=4.0',
 ]
 
 version = get_version('django_giropay')
